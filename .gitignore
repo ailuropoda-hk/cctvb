@@ -1,13 +1,14 @@
 env.file
 wpa_supplicant.conf
-
-keypair/*
+*.enc
+*.jpg
+*.pem
+*.bak
 __pycache__/
-
+*.pyc
+yolov3-wider_16000.weights
 
 sample_images/
 private/
 
-botmessenger/
-docker/
 
