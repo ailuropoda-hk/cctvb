@@ -1,0 +1,16 @@
+[Unit]
+Description=rpicam
+After=syslog.target network.target
+
+[Service]
+EnvironmentFile=/app/cctvb/.env
+ExecStart=python3 /app/cctvb/rpicam.py
+WorkingDirectory=/app/cctvb
+Restart=always
+User=root
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=rpicam
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,52 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Adding Host
+    add_host:
+      name: "{{ item }}"
+      groups: working_group
+    with_items: "{{ working_host }}"
+    changed_when: false
+
+- hosts: working_group
+  vars:
+    ansible_connection: ssh
+    ansible_user: pi
+    ansible_password: raspberry
+    ansible_become: yes
+    ansible_become_method: sudo
+  tasks:
+  - name: Ping Testing
+    ping:
+  - name: Copy WIFI Settings
+    copy:
+      src: /app/ansible/files/wpa_supplicant.conf
+      dest: /etc/wpa_supplicant/wpa_supplicant.conf
+  - name: Enable WIFI
+    command: wpa_cli -i wlan0 reconfigure
+  - name: apt install package required for python program
+    apt:
+      name: ['python3-pip', 'python3-picamera', 'python3-pkg-resources', 'python3-setuptools']
+      update_cache: yes
+      state: latest
+  - name: pip install package required for python program
+    command: pip3 install pycrypto python-telegram-bot
+  - name: Create Project Directory
+    file:
+      path: "/app/cctvb"
+      state: directory
+  - name: Copy Python Application Files
+    copy: src={{ item.src }} dest={{ item.dest }}
+    with_items:
+      - { src: '/app/rpicam/rpicam.py', dest: '/app/cctvb/rpicam.py' }
+      - { src: '/app/rpicam/encrypt.py', dest: '/app/cctvb/encrypt.py' }
+      - { src: '/app/keypair/public_key.pem', dest: '/app/cctvb/public_key.pem' }
+      - { src: '/app/ansible/files/env.file', dest: '/app/cctvb/.env' }
+      - { src: '/app/ansible/files/rpicam.service', dest: '/lib/systemd/system/rpicam.service' }
+  - name: enable and start service
+    systemd:
+      name: rpicam
+      state: restarted
+      enabled: yes
+    ignore_errors: yes

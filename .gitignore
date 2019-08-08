@@ -1,0 +1,13 @@
+env.file
+wpa_supplicant.conf
+
+keypair/*
+__pycache__/
+
+
+sample_images/
+private/
+
+botmessenger/
+docker/
+
